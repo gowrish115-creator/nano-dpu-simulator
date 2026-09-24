@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nano DPU - Simulator for team testing</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:'Segoe UI',Roboto,Arial,sans-serif;margin:0;background:#dfe3e8;color:#1a1a1a}
-.top{max-width:900px;margin:0 auto;padding:16px 16px 0;text-align:center}
+.top{max-width:900px;margin:0 auto;padding:8px 16px 0;text-align:center}
 .top h1{margin:0 0 3px;font-size:19px;color:#12447a}.top p{margin:0;font-size:13px;color:#5a6570}
-.deviceWrap{display:flex;justify-content:center;padding:16px;flex-wrap:wrap;gap:18px;align-items:flex-start}
+.deviceWrap{display:flex;justify-content:center;padding:10px 16px;flex-wrap:wrap;gap:18px;align-items:flex-start}
 .tp{width:290px;max-width:98vw;background:#fff;border:2px solid #12447a;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.15);font-size:14px;color:#222;overflow:hidden}
 .tp h3{margin:0;background:#12447a;color:#fff;font-size:15px;padding:10px 12px}
 .tp .sec{padding:10px 12px;border-bottom:1px solid #e3e8ee}
@@ -17,7 +17,7 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;margin:0;background:#dfe3e8;
 .tp .tb.alt{background:#5c6bc0}
 .tp .hint{font-size:12px;color:#5a6570;line-height:1.35}
 .tp #tp_log{font-size:12px;color:#2e7d32;min-height:16px;margin-top:6px}
-.stage{width:600px;max-width:98vw;height:840px;max-height:88vh;overflow:hidden;border-radius:30px;border:12px solid #14181e;box-shadow:0 12px 32px rgba(0,0,0,.3);background:#fff;position:relative}
+.stage{width:600px;height:840px;transform-origin:top left;overflow:hidden;border-radius:30px;border:12px solid #14181e;box-shadow:0 12px 32px rgba(0,0,0,.3);background:#fff;position:relative}
 .dev{width:100%;height:100%;background:#eceff1;position:relative;overflow:hidden}
 .screen{display:none;position:absolute;inset:0;flex-direction:column}
 .screen.active{display:flex}
@@ -96,8 +96,36 @@ input.f:focus{border-color:#1e88e5;box-shadow:0 0 0 2px rgba(30,136,229,.35);out
 .pphead{background:#5c6bc0;color:#fff;font-weight:700;font-size:18px;text-align:center;padding:15px}
 .ppbody{padding:16px;font-family:'Courier New',monospace;font-size:13px;white-space:pre-wrap;overflow-y:auto;flex:1}
 </style></head><body>
+<div id="pinGate" style="position:fixed;inset:0;background:#12447a;z-index:9999;display:flex;align-items:center;justify-content:center">
+ <div style="background:#fff;border-radius:16px;padding:26px 28px;width:300px;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)">
+  <div style="font-weight:800;font-size:20px;color:#12447a">NANO INSTRUMENTS</div>
+  <div style="font-size:14px;color:#5a6570;margin:4px 0 16px">DPU simulator &middot; team testing</div>
+  <input id="pinIn" type="password" inputmode="numeric" maxlength="8" placeholder="Enter PIN" style="width:100%;padding:12px;font-size:22px;text-align:center;letter-spacing:6px;border:2px solid #b8c2cc;border-radius:10px" onkeydown="if(event.key==='Enter')pinCheck()">
+  <button onclick="pinCheck()" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#2e7d32;color:#fff;font-size:16px;font-weight:700;cursor:pointer">Open</button>
+  <div id="pinMsg" style="color:#c62828;font-size:13px;min-height:18px;margin-top:8px"></div>
+ </div></div>
+<script>
+var PIN_H='b94b15ff1837dc7e4f68874fdb62f465af404a8d0a8ccb444770719e8bf2b214';
+function pinOpen(){var g=document.getElementById('pinGate');if(g)g.remove();try{sessionStorage.setItem('nano_pin_ok','1');}catch(e){}fitStage();}
+async function pinCheck(){var v=document.getElementById('pinIn').value.trim();
+ try{var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('nano-dpu:'+v));
+  var h=Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
+  if(h===PIN_H){pinOpen();return;}}catch(e){pinOpen();return;}
+ document.getElementById('pinMsg').textContent='Wrong PIN';document.getElementById('pinIn').value='';}
+(function(){var ok=false;try{ok=sessionStorage.getItem('nano_pin_ok')==='1';}catch(e){}
+ if(ok||!(window.crypto&&crypto.subtle)){var g=document.getElementById('pinGate');if(g)g.remove();}
+ else setTimeout(function(){var i=document.getElementById('pinIn');if(i)i.focus();},50);})();
+/* fit the 600x840 device to the window: whole device visible on laptops; fit to width on phones */
+function fitStage(){var st=document.querySelector('.stage'),box=document.getElementById('stageBox'),tp=document.getElementById('tp'),top=document.querySelector('.top');
+ if(!st||!box||!tp||!top)return;var W=600,H=840;var vw=document.documentElement.clientWidth,vh=window.innerHeight;
+ var wide=vw>=760, side=wide?(tp.offsetWidth+18):0;
+ var s=Math.min(1,(vw-32-side)/W); if(wide) s=Math.min(s,(vh-top.offsetHeight-24)/H);
+ s=Math.max(s,0.35);
+ st.style.transform='scale('+s+')';box.style.width=(W*s)+'px';box.style.height=(H*s)+'px';}
+window.addEventListener('resize',fitStage);window.addEventListener('load',fitStage);document.addEventListener('DOMContentLoaded',fitStage);
+</script>
 <div class="top"><h1>Nano DPU &mdash; Simulator for team testing</h1><p>Works like the DPU &middot; use the Test Instruments panel for scale and analyzer readings &middot; fully interactive &mdash; add members / purchases / sales / advances and the lists &amp; totals update live</p></div>
-<div class="deviceWrap"><div class="stage"><div class="dev">
+<div class="deviceWrap"><div id="stageBox"><div class="stage"><div class="dev">
 <div id="toast"></div>
 <div class="picker" id="picker" onclick="if(event.target===this)this.classList.remove('show')"><div class="pkbox"></div></div>
 <div class="ppwrap" id="ppwrap"><div class="ppbox"><div class="pphead">Print Preview</div><div class="ppbody" id="ppbody"></div><div style="padding:12px"><div class="pill red" onclick="document.getElementById('ppwrap').classList.remove('show')">CLOSE</div></div></div></div>
@@ -591,7 +619,7 @@ input.f:focus{border-color:#1e88e5;box-shadow:0 0 0 2px rgba(30,136,229,.35);out
   </div>
 </div>
 
-</div></div>
+</div></div></div>
 <!-- TEST INSTRUMENTS PANEL (testing only - stands in for the real scale and analyzer) -->
 <div class="tp" id="tp">
   <h3>&#128295; Test Instruments</h3>
@@ -614,7 +642,7 @@ input.f:focus{border-color:#1e88e5;box-shadow:0 0 0 2px rgba(30,136,229,.35);out
   </div>
 </div>
 </div>
-<p class="note">Nano Instruments &middot; DPU app replica, matched screen-by-screen to the real NanoDairy app (app-releaseV2.0.85.apk + 30 screenshots). Fully interactive: Add Member / Purchase / Sale / Advance all write to their lists and recompute totals; Advance View + Print Preview, dual VLCC/CC averages, and all report filters included. Rate uses a sample formula (the real chart is server-pushed). Producer avatar, NANO logo and the "No Data Found" illustration use the app's own image assets extracted from the APK.</p>
+<p class="note">Nano Instruments &middot; Nano DPU simulator for internal team testing &middot; rate uses a sample chart; the real chart comes from the server.</p>
 
 <script>
 /* ---------- empty-state illustration (matches app "no data" graphic) ---------- */

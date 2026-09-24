@@ -7,7 +7,7 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;margin:0;background:#dfe3e8;
 .top{max-width:900px;margin:0 auto;padding:8px 16px 0;text-align:center}
 .top h1{margin:0 0 3px;font-size:19px;color:#12447a}.top p{margin:0;font-size:13px;color:#5a6570}
 .deviceWrap{display:flex;justify-content:center;padding:10px 16px;flex-wrap:wrap;gap:18px;align-items:flex-start}
-.tp{width:290px;max-width:98vw;background:#fff;border:2px solid #12447a;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.15);font-size:14px;color:#222;overflow:hidden}
+.tp{width:290px;max-width:98vw;overflow-y:auto;background:#fff;border:2px solid #12447a;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.15);font-size:14px;color:#222;overflow:hidden}
 .tp h3{margin:0;background:#12447a;color:#fff;font-size:15px;padding:10px 12px}
 .tp .sec{padding:10px 12px;border-bottom:1px solid #e3e8ee}
 .tp .sec b{display:block;color:#12447a;margin-bottom:6px}
@@ -121,10 +121,11 @@ function fitStage(){var st=document.querySelector('.stage'),box=document.getElem
  var wide=vw>=760, side=wide?(tp.offsetWidth+18):0;
  var s=Math.min(1,(vw-32-side)/W); if(wide) s=Math.min(s,(vh-top.offsetHeight-24)/H);
  s=Math.max(s,0.35);
- st.style.transform='scale('+s+')';box.style.width=(W*s)+'px';box.style.height=(H*s)+'px';}
+ st.style.transform='scale('+s+')';box.style.width=(W*s)+'px';box.style.height=(H*s)+'px';
+ tp.style.maxHeight=wide?(H*s)+'px':'none';}
 window.addEventListener('resize',fitStage);window.addEventListener('load',fitStage);document.addEventListener('DOMContentLoaded',fitStage);
 </script>
-<div class="top"><h1>Nano DPU &mdash; Simulator for team testing</h1><p>Works like the DPU &middot; use the Test Instruments panel for scale and analyzer readings &middot; fully interactive &mdash; add members / purchases / sales / advances and the lists &amp; totals update live</p></div>
+<div class="top"><h1>Nano DPU &mdash; Simulator for team testing</h1><p>Enter scale and analyzer readings in the Test Instruments panel &middot; lists and totals update live</p></div>
 <div class="deviceWrap"><div id="stageBox"><div class="stage"><div class="dev">
 <div id="toast"></div>
 <div class="picker" id="picker" onclick="if(event.target===this)this.classList.remove('show')"><div class="pkbox"></div></div>
@@ -639,10 +640,10 @@ window.addEventListener('resize',fitStage);window.addEventListener('load',fitSta
     <button class="tb alt" onclick="tpRandom()">Fill random test values</button>
     <button class="tb alt" style="background:#c62828" onclick="if(confirm('Clear all test entries and start again?'))location.reload()">Start fresh (clear all data)</button>
     <div id="tp_log"></div>
+    <div class="hint" style="margin-top:8px">Rate uses a sample chart; on the real DPU the chart comes from the server.</div>
   </div>
 </div>
 </div>
-<p class="note">Nano Instruments &middot; Nano DPU simulator for internal team testing &middot; rate uses a sample chart; the real chart comes from the server.</p>
 
 <script>
 /* ---------- empty-state illustration (matches app "no data" graphic) ---------- */

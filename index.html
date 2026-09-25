@@ -123,6 +123,8 @@ textarea.f.ta{border:1px solid #ccc;border-radius:8px;padding:11px 12px;font-siz
 .online{font-size:13px;font-weight:700;text-align:center;line-height:1.1;text-transform:uppercase;min-width:62px}
 .online svg{width:30px;height:30px;display:block;margin:0 auto 2px}
 #home .body,#more .body{background:#fff;padding:8px}
+/* home fits exactly in real browsers (desktop scrollbars): tiles may shrink below their min-height */
+#home .body .tile,#home .body .unsync{min-height:0!important}#home .body>*{min-height:0}
 #more .body{display:flex;flex-direction:column}
 .hrow{display:flex;gap:8px;margin-top:8px}
 .hrow:first-child{margin-top:0}
